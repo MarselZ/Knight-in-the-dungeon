@@ -10,6 +10,11 @@ objects:
     min-count: 0
     max-count: 3
 ally:
+  gin:
+    sprite: [NPC_4.png]
+    action: apply_blessing
+    min-count: 1
+    max-count: 6
   bless:
     sprite: [NPC_1.png]
     action: apply_blessing
@@ -35,22 +40,29 @@ enemies:
     experience: 50
   knight:
     sprite: [Enemy_1.png]
-    strength: 15
+    strength: 30
     endurance: 15
     intelligence: 15
     luck: 10
     experience: 200
   naga:
     sprite: [Naga.png]
-    strength: 25
+    strength: 80
     endurance: 25
     intelligence: 25
     luck: 10
     experience: 500
   dragon:
     sprite: [dragon.png]
-    strength: 50
+    strength: 300
     endurance: 50
     intelligence: 50
     luck: 5
     experience: 1000
+  hydra:
+    sprite: [hydra.png]
+    strength: 1000
+    endurance: 100
+    intelligence: 50
+    luck: 50
+    experience: 2000

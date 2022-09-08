@@ -1,3 +1,6 @@
+""" Основной запускающий файл игры. Здесь происходит запуск основных параметров игры, установка управления. """
+
+
 import pygame
 import os
 import Objects
@@ -28,19 +31,18 @@ base_stats = {
 def create_game(sprite_size, is_new):
     global hero, engine, drawer, iteration
     if is_new:
+        # создаем экземпляр героя с базовыми характеристиками и поверхность в виде иконкой:
         hero = Objects.Hero(base_stats, Service.create_sprite(
             os.path.join("texture", "Hero.png"), sprite_size))
-        engine = Logic.GameEngine()
-        Service.service_init(sprite_size)
-        Service.reload_game(engine, hero)
-        with ScreenEngine as SE:
-            drawer = SE.GameSurface((640, 480), pygame.SRCALPHA, (0, 480),
-                                    SE.ProgressBar((640, 120), (640, 0),
-                                                   SE.InfoWindow((160, 600), (50, 50),
-                                                                 SE.HelpWindow((700, 500), pygame.SRCALPHA, (0, 0),
-                                                                               SE.ScreenHandle(
-                                                                                   (0, 0))
-                                                                               ))))
+        engine = Logic.GameEngine()  # создаем экземпляр движка
+        Service.service_init(sprite_size)  # создаем карты        
+        Service.reload_game(engine, hero)  # загрузка начальных параметров
+        drawer = ScreenEngine.GameSurface((640, 480), pygame.SRCALPHA, (0, 480),
+                                    ScreenEngine.ProgressBar((640, 120), (640, 0),
+                                        ScreenEngine.InfoWindow((160, 600), (50, 50),
+                                            ScreenEngine.HelpWindow((700, 500), pygame.SRCALPHA, (0, 0),
+                                                ScreenEngine.ScreenHandle((0, 0))
+                                                                    ))))
 
     else:
         engine.sprite_size = sprite_size
@@ -49,16 +51,14 @@ def create_game(sprite_size, is_new):
         Service.service_init(sprite_size, False)
 
     Logic.GameEngine.sprite_size = sprite_size
-
     drawer.connect_engine(engine)
-
     iteration = 0
 
 
 size = 60
 create_game(size, True)
 
-while engine.working:
+while engine.working:  # Игровой цикл
 
     if KEYBOARD_CONTROL:
         for event in pygame.event.get():
@@ -74,6 +74,7 @@ while engine.working:
                     size = size - 1
                     create_game(size, False)
                 if event.key == pygame.K_r:
+                    base_stats = {"strength": 20, "endurance": 20, "intelligence": 5, "luck": 5}
                     create_game(size, True)
                 if event.key == pygame.K_ESCAPE:
                     engine.working = False
@@ -90,6 +91,7 @@ while engine.working:
                     elif event.key == pygame.K_RIGHT:
                         engine.move_right()
                         iteration += 1
+
                 else:
                     if event.key == pygame.K_RETURN:
                         create_game()
@@ -109,14 +111,12 @@ while engine.working:
             move = actions[np.argmax(answer)]()
             state = pygame.surfarray.array3d(gameDisplay)
             reward = engine.score - prev_score
-            print(reward)
         else:
             create_game()
 
     gameDisplay.blit(drawer, (0, 0))
     drawer.draw(gameDisplay)
-
-    pygame.display.update()
+    pygame.display.update()  # обновление экрана - видно фактическую отрисовку экрана
 
 pygame.display.quit()
 pygame.quit()
