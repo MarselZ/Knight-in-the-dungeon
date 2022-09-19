@@ -1,3 +1,6 @@
+""" Содержит логику игрового движка GameEngine. """
+
+
 import Service
 
 
@@ -28,11 +31,12 @@ class GameEngine:
         self.hero = hero
 
     def interact(self):
+        """ Взаимодействие игрока с другими объектами."""
         for obj in self.objects:
             if list(obj.position) == self.hero.position:
                 self.delete_object(obj)
                 obj.interact(self, self.hero)
-
+                
     # MOVEMENT
     def move_up(self):
         self.score -= 0.02
@@ -60,7 +64,7 @@ class GameEngine:
         if self.map[self.hero.position[1]][self.hero.position[0] + 1] == Service.wall:
             return
         self.hero.position[0] += 1
-        self.interact()
+        self.interact()  
 
     # MAP
     def load_map(self, game_map):

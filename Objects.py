@@ -1,14 +1,18 @@
+""" Данный модуль отвечает за создание героя(Hero), союзников(Ally), противников(Enemy),
+а также накладывает различные эффекты на героя(Effects)
+"""
+
+
 from abc import ABC, abstractmethod
-import pygame
-import random
 
 
-def create_sprite(img, sprite_size):
-    icon = pygame.image.load(img).convert_alpha()
-    icon = pygame.transform.scale(icon, (sprite_size, sprite_size))
-    sprite = pygame.Surface((sprite_size, sprite_size), pygame.HWSURFACE)
-    sprite.blit(icon, (0, 0))
-    return sprite
+class AbstractObject(ABC):
+    def __init__(self):
+        pass
+
+    def draw(self, display):
+        display.blit(self.sprite, ((self.position[0] - display.min_x)*display.game_engine.sprite_size,
+                                   (self.position[1] - display.min_y)*display.game_engine.sprite_size))
 
 
 class Interactive(ABC):
@@ -42,6 +46,28 @@ class Creature(AbstractObject):
         self.max_hp = 5 + self.stats["endurance"] * 2
 
 
+class Enemy(Creature, Interactive):
+    def __init__(self, icon, stats, xp, position):
+        self.icon = icon
+        self.stats = stats
+        self.xp = xp
+        self.position = position
+
+    def interact(self, engine, hero):
+        if self.stats["strength"] <= hero.stats["strength"]:
+            hero.stats["strength"] += self.stats["strength"]
+            hero.exp += self.xp
+            engine.score += self.xp / 100
+            if hero.exp >= 100 * (2 ** (hero.level - 1)):
+                engine.notify(hero.level_up())
+                
+        else:
+            for i in range(100):
+                print(f'{i} - GAME OVER - ' * i)
+            engine.working = False
+
+
+
 class Hero(Creature):
 
     def __init__(self, stats, icon):
@@ -53,12 +79,12 @@ class Hero(Creature):
 
     def level_up(self):
         while self.exp >= 100 * (2 ** (self.level - 1)):
-            yield "level up!"
             self.level += 1
             self.stats["strength"] += 2
             self.stats["endurance"] += 2
             self.calc_max_HP()
             self.hp = self.max_hp
+        return f"level up! Now your level {self.level}"
 
 
 class Effect(Hero):
@@ -125,5 +151,26 @@ class Effect(Hero):
         pass
 
 
-# FIXME
-# add classes
+class Berserk(Effect):
+    def apply_effect(self):
+        self.stats['strength'] += 7
+        self.stats['endurance'] += 7
+        self.stats['luck'] += 7
+        self.stats['intelligence'] -= 3
+        self.hp += 50
+       
+
+class Blessing(Effect):
+    def apply_effect(self):
+        self.stats['strength'] += 2
+        self.stats['endurance'] += 2
+        self.stats['luck'] += 2
+        self.stats['intelligence'] += 2
+        
+
+class Weakness(Effect):
+    def apply_effect(self):
+        self.stats['strength'] -= 4
+        self.stats['endurance'] -= 4
+
+
